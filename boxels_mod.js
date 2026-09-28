@@ -1,7 +1,3 @@
-// ============================================================
-// SELL TOOL
-// ============================================================
-
 var sellMoney = 0;
 var sellCooldown = 0;
 var sellUsing = false;
@@ -10,11 +6,6 @@ var sellSoldGold = 0;
 var sellBrushSize = 15;
 var sellPreviousBrushSize = 5;
 var sellEquipped = false;
-
-
-// ============================================================
-// MONEY + COOLDOWN DISPLAY
-// ============================================================
 
 var sellDisplay = document.createElement("div");
 
@@ -38,7 +29,6 @@ sellDisplay.innerHTML =
 
 document.body.appendChild(sellDisplay);
 
-
 function updateSellDisplay() {
 
     if (sellCooldown > 0) {
@@ -58,11 +48,6 @@ function updateSellDisplay() {
     }
 }
 
-
-// ============================================================
-// SELL TOOL
-// ============================================================
-
 elements.sell = {
 
     color: "#FFD700",
@@ -75,19 +60,12 @@ elements.sell = {
 
     desc: "Deletes everything inside the brush and pays 1 Money for every gold pixel.",
 
-
-    // --------------------------------------------------------
-    // EQUIP
-    // --------------------------------------------------------
-
     onSelect: function() {
 
         sellEquipped = true;
 
-        // Save the brush size the player was using
         sellPreviousBrushSize = mouseSize;
 
-        // Force SELL to 15
         mouseSize = sellBrushSize;
 
         checkMouseSize(true);
@@ -95,61 +73,33 @@ elements.sell = {
         updateSellDisplay();
     },
 
-
-    // --------------------------------------------------------
-    // START OF A USE
-    // --------------------------------------------------------
-
     onMouseDown: function() {
 
-        // Make absolutely sure the brush is 15
         mouseSize = sellBrushSize;
         checkMouseSize(true);
 
-
-        // Cannot use SELL during cooldown
         if (sellCooldown > 0) {
             sellUsing = false;
             return;
         }
 
-
-        // Begin one SELL action
         sellUsing = true;
 
-        // Reset the gold counter for this action
         sellSoldGold = 0;
     },
 
-
-    // --------------------------------------------------------
-    // EVERY PIXEL INSIDE THE BRUSH
-    // --------------------------------------------------------
-
     tool: function(pixel) {
 
-        // If the click was blocked by cooldown,
-        // don't delete anything.
         if (!sellUsing) {
             return;
         }
 
-
-        // Count GOLD before deleting the pixel.
         if (pixel.element === "cut_gold") {
             sellSoldGold++;
         }
 
-
-        // DELETE EVERYTHING.
-        // Gold, dirt, stone, qwerten, water, etc.
         deletePixel(pixel.x, pixel.y);
     },
-
-
-    // --------------------------------------------------------
-    // END OF A USE
-    // --------------------------------------------------------
 
     onMouseUp: function() {
 
@@ -157,26 +107,15 @@ elements.sell = {
             return;
         }
 
-
         sellUsing = false;
 
-
-        // Give money equal to the number of gold
-        // pixels that were inside the brush/action.
         sellMoney += sellSoldGold;
 
         updateSellDisplay();
 
-
-        // Start the 10 second cooldown.
         sellCooldown = 10;
     }
 };
-
-
-// ============================================================
-// COOLDOWN TIMER
-// ============================================================
 
 setInterval(function() {
 
@@ -193,11 +132,6 @@ setInterval(function() {
 
 }, 100);
 
-
-// ============================================================
-// KEEP BRUSH AT 15 WHILE SELL IS EQUIPPED
-// ============================================================
-
 setInterval(function() {
 
     if (currentElement === "sell") {
@@ -209,8 +143,6 @@ setInterval(function() {
             sellPreviousBrushSize = mouseSize;
         }
 
-
-        // Do not allow the player to change SELL's brush size.
         if (mouseSize !== sellBrushSize) {
             mouseSize = sellBrushSize;
             checkMouseSize(true);
@@ -218,22 +150,16 @@ setInterval(function() {
 
     } else {
 
-        // SELL was unequipped
         if (sellEquipped) {
 
             sellEquipped = false;
 
-            // Restore the previous brush size
             mouseSize = sellPreviousBrushSize;
             checkMouseSize(true);
         }
     }
 
 }, 10);
-
-// ============================================================
-// CUT GOLD
-// ============================================================
 
 elements.cut_gold = {
     color: ["#f5ff65", "#e7f600"],
@@ -244,15 +170,9 @@ elements.cut_gold = {
     desc: "Gold that has been cut with a jeweler's saw."
 };
 
-
-// ============================================================
-// JEWELER'S SAW
-// ============================================================
-
 var jewelersSawBrushSize = 3;
 var jewelersSawPreviousBrushSize = 5;
 var jewelersSawEquipped = false;
-
 
 elements.jewelers_saw = {
 
@@ -264,45 +184,26 @@ elements.jewelers_saw = {
 
     desc: "Cuts gold into cut gold.",
 
-
-    // --------------------------------------------------------
-    // EQUIP
-    // --------------------------------------------------------
-
     onSelect: function() {
 
         jewelersSawEquipped = true;
 
-        // Remember current brush size
         jewelersSawPreviousBrushSize = mouseSize;
 
-        // Force brush size to 3
         mouseSize = jewelersSawBrushSize;
 
         checkMouseSize(true);
     },
 
-
-    // --------------------------------------------------------
-    // USE ON GOLD
-    // --------------------------------------------------------
-
     tool: function(pixel) {
 
-        // Only affect gold
         if (!pixel || pixel.element !== "gold") {
             return;
         }
 
-        // Turn gold into cut_gold
         changePixel(pixel, "cut_gold");
     }
 };
-
-
-// ============================================================
-// KEEP BRUSH SIZE AT 3 WHILE EQUIPPED
-// ============================================================
 
 setInterval(function() {
 
@@ -313,7 +214,6 @@ setInterval(function() {
             jewelersSawPreviousBrushSize = mouseSize;
         }
 
-        // Lock brush size to 3
         if (mouseSize !== jewelersSawBrushSize) {
             mouseSize = jewelersSawBrushSize;
             checkMouseSize(true);
@@ -321,7 +221,6 @@ setInterval(function() {
 
     } else {
 
-        // Restore previous brush size after unequipping
         if (jewelersSawEquipped) {
 
             jewelersSawEquipped = false;
